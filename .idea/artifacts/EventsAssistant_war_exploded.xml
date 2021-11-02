@@ -1,10 +1,10 @@
 <component name="ArtifactManager">
-  <artifact type="exploded-war" name="springboot2-webapp-jsp:war exploded">
-    <output-path>$PROJECT_DIR$/springboot2-webapp-jsp/target/springboot2-webapp-jsp-0.0.1-SNAPSHOT</output-path>
+  <artifact type="exploded-war" name="EventsAssistant:war exploded">
+    <output-path>$PROJECT_DIR$/EventsAssistant/target/springboot2-webapp-jsp-0.0.1-SNAPSHOT</output-path>
     <properties id="maven-jee-properties">
       <options>
         <exploded>true</exploded>
-        <module>springboot2-webapp-jsp</module>
+        <module>EventsAssistant</module>
         <packaging>war</packaging>
         <unpackNestedArchives>false</unpackNestedArchives>
       </options>
@@ -87,7 +87,7 @@
       <element id="directory" name="META-INF">
         <element id="file-copy" path="$PROJECT_DIR$/EventsAssistant/target/springboot2-webapp-jsp-0.0.1-SNAPSHOT/META-INF/MANIFEST.MF" />
       </element>
-      <element id="javaee-facet-resources" facet="springboot2-webapp-jsp/web/Web" />
+      <element id="javaee-facet-resources" facet="EventsAssistant/web/Web" />
     </root>
   </artifact>
 </component>
