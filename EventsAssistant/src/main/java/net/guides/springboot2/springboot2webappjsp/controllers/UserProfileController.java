@@ -39,10 +39,4 @@ public class UserProfileController {
 	}
 
 
-
-
-
-
-	
-
 }
