@@ -1,5 +1,7 @@
-# ELEC 5620 backend project
+# ELEC 5620 backend project - Events Assistant
 
-This project is a springboot/mysql/hibernate project.
+This project is a spring-boot/MySQL/hibernate project.
 
-The project uses Azure facial recognition API to handle login/register function.
+It will help allocate the rescue resources during a disaster.
+
+The project uses Azure facial recognition API to handle the login/register function.
