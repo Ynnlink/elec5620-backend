@@ -1,10 +1,8 @@
 package net.guides.springboot2.springboot2webappjsp.controllers;
 
-import net.guides.springboot2.springboot2webappjsp.auth.JwtUtil;
+import net.guides.springboot2.springboot2webappjsp.authentication.JwtUtil;
 import net.guides.springboot2.springboot2webappjsp.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
@@ -37,6 +35,10 @@ public class UserProfileController {
 	public Result editUserProfile(HttpServletRequest request) {
 		return null;
 	}
+
+
+
+
 
 
 }

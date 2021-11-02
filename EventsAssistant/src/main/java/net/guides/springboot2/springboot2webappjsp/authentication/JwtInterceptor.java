@@ -1,10 +1,9 @@
-package net.guides.springboot2.springboot2webappjsp.auth;
+package net.guides.springboot2.springboot2webappjsp.authentication;
 
 import net.guides.springboot2.springboot2webappjsp.controllers.Result;
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 

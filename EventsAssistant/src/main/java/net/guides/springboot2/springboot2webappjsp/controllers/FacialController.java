@@ -1,16 +1,13 @@
 package net.guides.springboot2.springboot2webappjsp.controllers;
 
 
-import net.guides.springboot2.springboot2webappjsp.auth.JwtUtil;
+import net.guides.springboot2.springboot2webappjsp.authentication.JwtUtil;
 import net.guides.springboot2.springboot2webappjsp.domain.User;
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.tomcat.util.http.fileupload.FileUtils;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItem;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.LinkedHashMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -29,7 +25,8 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("facial")
@@ -123,6 +120,12 @@ public class FacialController {
         }
 
         return null;
+    }
+
+
+    @PostMapping("/logout")
+    public Result userLogout() {
+        return Result.succ("Successfully logout!");
     }
 
     //receive user's picture and return unique face id
