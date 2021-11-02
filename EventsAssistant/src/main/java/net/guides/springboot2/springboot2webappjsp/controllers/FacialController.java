@@ -32,12 +32,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 @RestController
-@RequestMapping("face")
+@RequestMapping("facial")
 public class FacialController {
 
     @Autowired
     UserRepository userRepo;
 
+    //Azure recognition api and key
     private final String endpoint = "https://5620.cognitiveservices.azure.com";
     private final String subscriptionKey = "2fe732e342444140ac9bf9094895dc78";
 
@@ -47,28 +48,41 @@ public class FacialController {
     }
 
     @PostMapping("/register")
-    public Result userRegister(@RequestParam("file") MultipartFile file) {
+    public Result userRegister(@RequestParam("file") MultipartFile file,
+                               @RequestParam("mobile_phone") String mobilePhone,
+                               @RequestParam("user_name") String name) {
 
         String face_id = null;
 
+        //invalid condition
         if (file.getSize() == 0) {
             return Result.fail("File can't be empty!");
-        } else {
-            try {
-                face_id = faceDetect(file);
-            } catch (IOException | NullPointerException e) {
-                e.printStackTrace();
-            }
+        }
+        if (mobilePhone.length() == 0) {
+            return Result.fail("Mobile phone is required!");
+        }
+        if (name.length() == 0) {
+            return Result.fail("Name can't be empty!");
+        }
+
+        //facial recognition function
+        try {
+            face_id = faceDetect(file);
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
         }
 
         if (face_id == null) {
             return Result.fail("Facial recognition fail!");
         } else {
-            if (faceVerify(face_id).getCode().equals("0")) {
+            Result result = faceVerify(face_id);
+            if (result.getCode().equals("0")) {
                 return Result.fail("Already has register info!");
             } else {
                 User user = new User();
                 user.setUser_face_id(face_id);
+                user.setUser_name(name);
+                user.setTelephone(mobilePhone);
                 userRepo.save(user);
                 return Result.succ("Successfully register!");
             }
@@ -85,10 +99,14 @@ public class FacialController {
 
         String face_id;
         try {
+            //detect the user's upload picture
             face_id = faceDetect(file);
-            if (faceVerify(face_id).getCode().equals("0")) {
+            //verify id in database
+            Result result = faceVerify(face_id);
 
-                String token = JwtUtil.sign(faceVerify(face_id).getData().toString());
+            if (result.getCode().equals("0")) {
+                //find identical user
+                String token = JwtUtil.sign(result.getData().toString());
 
                 if (token != null) {
                     //fill in token
@@ -97,13 +115,13 @@ public class FacialController {
                     return Result.fail("Access denied!");
                 }
 
-
             } else {
                 return Result.fail("No such user information exist, please register!");
             }
         } catch (IOException | NullPointerException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
@@ -114,7 +132,9 @@ public class FacialController {
 
         if(!multipartfile.isEmpty()){
 
+            //temp file location
             String contextPath = "C:\\Users\\Ning\\IdeaProjects\\springboot2-webapp-jsp\\src\\main\\resources\\tempDir";
+
             File f = new File(contextPath);
             if(!f.exists()){
                 f.mkdirs();
@@ -163,7 +183,6 @@ public class FacialController {
             if (entity != null) {
                 // Format and display the JSON response.
                 // backend diagnose
-
                 System.out.println("\nREST Response:\n");
                 String jsonString = EntityUtils.toString(entity).trim();
                 JSONArray jsonArray = new JSONArray(jsonString);

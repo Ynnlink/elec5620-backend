@@ -9,8 +9,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Configuration
 public class InterceptorConfig implements WebMvcConfigurer {
@@ -21,10 +19,8 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(authenticationInterceptor())
                 .addPathPatterns("/**")
-                .excludePathPatterns("/face/**");
-                //.excludePathPatterns("/register");
-                //.excludePathPatterns("/startCaptcha")
-                //.excludePathPatterns("/getUserById","/searchName","/userlogout","/post/**","/profilePicture/**","/frontpage","/getAllArtifactById");
+                .excludePathPatterns("/facial/**")
+                .excludePathPatterns("/user/**");
     }
 
     @Bean

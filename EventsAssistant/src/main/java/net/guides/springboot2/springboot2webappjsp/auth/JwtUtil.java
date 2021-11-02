@@ -17,17 +17,6 @@ public class JwtUtil {
     public static final String SECRET = "Overcoming tough time";
 
 
-    /*
-    public static String sign(String email, String secret) {
-        Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
-        Algorithm algorithm = Algorithm.HMAC256(secret);
-
-        return JWT.create().withClaim("email", email).withExpiresAt(date).sign(algorithm);
-
-    }
-
-     */
-
     public static String sign(String face_id) {
 
         //expire data
@@ -53,9 +42,7 @@ public class JwtUtil {
             JWTVerifier verifier = JWT.require(algorithm).withClaim("face_id", face_id).build();
             DecodedJWT jwt = verifier.verify(token);
 
-
             System.out.println("Token verified!");
-
             System.out.println("Issue time: " + jwt.getIssuedAt());
             System.out.println("Expire time: " + jwt.getExpiresAt());
             System.out.println("Face id: " + jwt.getClaim("face_id"));
