@@ -40,6 +40,57 @@ public class FacialController {
     private final String endpoint = "https://5620.cognitiveservices.azure.com";
     private final String subscriptionKey = "2fe732e342444140ac9bf9094895dc78";
 
+    @GetMapping("/person-group")
+    public void createPersonGroup() {
+        personGroup();
+    }
+
+    @PostMapping("/register")
+    public Result userRegister(@RequestParam("file") MultipartFile file) {
+
+        String face_id = null;
+
+        if (file.getSize() == 0) {
+            return Result.fail("File can't be empty!");
+        } else {
+            try {
+                face_id = faceDetect(file);
+            } catch (IOException | NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (face_id == null) {
+            return Result.fail("Facial recognition fail!");
+        } else {
+            if (faceVerify(face_id).getCode().equals("0")) {
+                return Result.fail("Already has register info!");
+            } else {
+                User user = new User();
+                user.setUser_face_id(face_id);
+                userRepo.save(user);
+                return Result.succ("Successfully register!");
+            }
+        }
+    }
+
+    @PostMapping("/login")
+    public Result userLogin(@RequestParam("file") MultipartFile file) {
+        String face_id;
+        try {
+            face_id = faceDetect(file);
+            if (faceVerify(face_id).getCode().equals("0")) {
+                //fill in token
+                return Result.succ("Successfully login!", faceVerify(face_id).getData());
+            } else {
+                return Result.fail("No such user information exist, please register!");
+            }
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     //receive user's picture and return unique face id
     public String faceDetect(MultipartFile multipartfile) throws IOException {
 
@@ -96,6 +147,7 @@ public class FacialController {
             if (entity != null) {
                 // Format and display the JSON response.
                 // backend diagnose
+
                 System.out.println("REST Response:\n");
                 String jsonString = EntityUtils.toString(entity).trim();
                 JSONArray jsonArray = new JSONArray(jsonString);
@@ -176,6 +228,7 @@ public class FacialController {
 
     }
 
+    //define a default person group
     public void personGroup() {
         HttpClient httpclient = HttpClientBuilder.create().build();
 
@@ -203,62 +256,6 @@ public class FacialController {
             System.out.println(e.getMessage());
         }
     }
-
-    @GetMapping("/person-group")
-    public void createPersonGroup() {
-        personGroup();
-    }
-
-    @PostMapping("/register")
-    public Result userRegister(@RequestParam("file") MultipartFile file) {
-
-        String face_id = null;
-
-        if (file.getSize() == 0) {
-            return Result.fail("File can't be empty!");
-        } else {
-            try {
-                face_id = faceDetect(file);
-            } catch (IOException | NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (face_id == null) {
-            return Result.fail("Facial recognition fail!");
-        } else {
-            if (faceVerify(face_id).getCode().equals("0")) {
-                return Result.fail("Already has register info!");
-            } else {
-                User user = new User();
-                user.setUser_face_id(face_id);
-                userRepo.save(user);
-                return Result.succ("Successfully register!");
-            }
-        }
-    }
-
-    @PostMapping("/login")
-    public Result userLogin(@RequestParam("file") MultipartFile file) {
-
-        String face_id = null;
-        try {
-            face_id = faceDetect(file);
-        } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
-        }
-
-
-        return null;
-
-    }
-
-
-
-
-
-
-
 
 
 }

@@ -3,6 +3,7 @@ package net.guides.springboot2.springboot2webappjsp.controllers;
 import lombok.Data;
 
 import java.io.Serializable;
+
 @Data
 public class Result implements Serializable {
         private String code;
