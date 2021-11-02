@@ -1,6 +1,7 @@
 package net.guides.springboot2.springboot2webappjsp.controllers;
 
 
+import net.guides.springboot2.springboot2webappjsp.auth.JwtUtil;
 import net.guides.springboot2.springboot2webappjsp.domain.User;
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
 import org.apache.http.client.methods.HttpPut;
@@ -76,12 +77,27 @@ public class FacialController {
 
     @PostMapping("/login")
     public Result userLogin(@RequestParam("file") MultipartFile file) {
+
+        //file can't be empty
+        if (file.getSize() == 0) {
+            return Result.fail("File can't be empty!");
+        }
+
         String face_id;
         try {
             face_id = faceDetect(file);
             if (faceVerify(face_id).getCode().equals("0")) {
-                //fill in token
-                return Result.succ("Successfully login!", faceVerify(face_id).getData());
+
+                String token = JwtUtil.sign(faceVerify(face_id).getData().toString());
+
+                if (token != null) {
+                    //fill in token
+                    return Result.succ("Successfully login!", "Token: " + token);
+                } else {
+                    return Result.fail("Access denied!");
+                }
+
+
             } else {
                 return Result.fail("No such user information exist, please register!");
             }
@@ -148,7 +164,7 @@ public class FacialController {
                 // Format and display the JSON response.
                 // backend diagnose
 
-                System.out.println("REST Response:\n");
+                System.out.println("\nREST Response:\n");
                 String jsonString = EntityUtils.toString(entity).trim();
                 JSONArray jsonArray = new JSONArray(jsonString);
                 System.out.println(jsonArray.toString(2));
@@ -209,7 +225,7 @@ public class FacialController {
 
                 // Format and display the JSON response.
                 // backend diagnose
-                System.out.println("REST Response:\n");
+                System.out.println("\nREST Response:\n");
                 System.out.println(jsonObject);
 
                 if (jsonObject.get("isIdentical").equals(true)) {
