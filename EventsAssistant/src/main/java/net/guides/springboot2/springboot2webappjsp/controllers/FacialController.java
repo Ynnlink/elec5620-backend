@@ -9,6 +9,7 @@ import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItem;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.LinkedHashMap;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -67,7 +70,7 @@ public class FacialController {
             URIBuilder builder = new URIBuilder(endpoint + "/face/v1.0/detect");
 
             // Request parameters. All of them are optional.
-            builder.setParameter("detectionModel", "detection_04");
+            builder.setParameter("detectionModel", "detection_03");
             builder.setParameter("returnFaceId", "true");
 
             // Prepare the URI for the REST API call.
@@ -92,6 +95,7 @@ public class FacialController {
 
             if (entity != null) {
                 // Format and display the JSON response.
+                // backend diagnose
                 System.out.println("REST Response:\n");
                 String jsonString = EntityUtils.toString(entity).trim();
                 JSONArray jsonArray = new JSONArray(jsonString);
@@ -117,7 +121,7 @@ public class FacialController {
     }
 
     //detect user's face_id and verify
-    public int faceVerify(String identify_id) {
+    public Result faceVerify(String identify_id) {
 
         for (String id: userRepo.findAllID()) {
 
@@ -134,42 +138,43 @@ public class FacialController {
                 request.setHeader("Content-Type", "application/json");
                 request.setHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
 
-                // Request body.
+                String verification = "{" +
+                        "\"faceId1\":" +
+                        "\"" + identify_id + "\"," +
+                        "\"faceId2\":" +
+                        "\"" + id + "\"" +
+                        "}";
 
-
-
-                StringEntity reqEntity = new StringEntity(id);
+                StringEntity reqEntity = new StringEntity(verification);
                 request.setEntity(reqEntity);
-
 
                 // Execute the REST API call and get the response entity.
                 HttpResponse response = httpclient.execute(request);
                 HttpEntity entity = response.getEntity();
 
-                if (entity != null) {
-                    // Format and display the JSON response.
-                    System.out.println("REST Response:\n");
-                    String jsonString = EntityUtils.toString(entity).trim();
-                    System.out.println(jsonString);
+                String jsonString = EntityUtils.toString(entity);
+                JSONObject jsonObject = new JSONObject(jsonString);
 
+                // Format and display the JSON response.
+                // backend diagnose
+                System.out.println("REST Response:\n");
+                System.out.println(jsonObject);
+
+                if (jsonObject.get("isIdentical").equals(true)) {
+                    return Result.succ("Find in database!", id);
                 }
+
             } catch (Exception e) {
                 // Display error message.
+                e.printStackTrace();
                 System.out.println(e.getMessage());
-
+                return Result.fail("Error verifying!");
             }
-
-
-
-
-
         }
 
-        return 1;
-
+        return Result.fail("No data!");
 
     }
-
 
     public void personGroup() {
         HttpClient httpclient = HttpClientBuilder.create().build();
@@ -199,11 +204,10 @@ public class FacialController {
         }
     }
 
-    @GetMapping("/test")
-    public void test() {
+    @GetMapping("/person-group")
+    public void createPersonGroup() {
         personGroup();
     }
-
 
     @PostMapping("/register")
     public Result userRegister(@RequestParam("file") MultipartFile file) {
@@ -223,10 +227,14 @@ public class FacialController {
         if (face_id == null) {
             return Result.fail("Facial recognition fail!");
         } else {
-            User user = new User();
-            user.setUser_face_id(face_id);
-            userRepo.save(user);
-            return Result.succ("Successfully register!");
+            if (faceVerify(face_id).getCode().equals("0")) {
+                return Result.fail("Already has register info!");
+            } else {
+                User user = new User();
+                user.setUser_face_id(face_id);
+                userRepo.save(user);
+                return Result.succ("Successfully register!");
+            }
         }
     }
 
