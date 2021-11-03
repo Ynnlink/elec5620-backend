@@ -23,7 +23,7 @@ public class FunctionTest {
         FacialController facialController = new FacialController();
 
 
-        facialController.faceVerify("522e87b9-9b83-4039-a05f-f8bd91c611cd");
+        //facialController.faceVerify("522e87b9-9b83-4039-a05f-f8bd91c611cd");
 
 
 

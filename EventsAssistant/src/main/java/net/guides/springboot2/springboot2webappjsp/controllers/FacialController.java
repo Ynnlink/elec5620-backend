@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -29,6 +31,8 @@ import org.json.JSONArray;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.Null;
+import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
 
 @RestController
 @RequestMapping("facial")
@@ -52,7 +56,6 @@ public class FacialController {
     public Result userRegister(@RequestParam("file") MultipartFile file,
                                @RequestParam("mobile_phone") String mobilePhone,
                                @RequestParam("user_name") String name) {
-
 
         String face_id = null;
 
@@ -83,7 +86,7 @@ public class FacialController {
         if (face_id == null) {
             return Result.fail("Facial recognition fail!");
         } else {
-            Result result = faceVerify(face_id);
+            Result result = faceVerify(face_id, "user");
             if (result.getCode().equals("0")) {
                 return Result.fail("Already has register info!");
             } else {
@@ -151,7 +154,7 @@ public class FacialController {
         if (face_id == null) {
             return Result.fail("Facial recognition fail!");
         } else {
-            Result result = faceVerify(face_id);
+            Result result = faceVerify(face_id, "team");
             if (result.getCode().equals("0")) {
                 return Result.fail("Already has register info!");
             } else {
@@ -170,36 +173,105 @@ public class FacialController {
     }
 
 
-    @PostMapping("/login")
+    @PostMapping("/user_login")
     public Result userLogin(@RequestParam("file") MultipartFile file,
                             @RequestParam("name") String name,
                             @RequestParam("mobile_phone") String mobile_phone) {
 
-        //file can't be empty
+        //name and mobile phone login method
+        if (file.getSize() == 0) {
+            try {
+                //login
+                //conditions
+                if (name.length() == 0) {
+                    return Result.fail("Name can't be empty!");
+                } else if (mobile_phone.length() == 0) {
+                    return Result.fail("Mobile phone can't be empty!");
+                } else {
+                    //verify user in database
+                    User user = userRepo.findUserByTelephone(mobile_phone);
+                    if (user == null) {
+                        return Result.fail("No such user information exist, please register!");
+                    } else {
+                        //find identical user
+                        String token = JwtUtil.sign(user.getUser_face_id());
+                        if (token != null) {
+                            //fill in token
+                            if (user.getType() == 1) {
+                                return Result.succ("User login!", "Token: " + token);
+                            } else {
+                                return Result.succ("Admin login!", "Token: " + token);
+                            }
+                        } else {
+                            return Result.fail("Access denied!");
+                        }
+                    }
+                }
+            } catch (NullPointerException npe) {
+                return Result.fail("Null value exist!");
+            }
+        }
+
+        //facial recognition login method
+        if (file.getSize() != 0) {
+            String face_id;
+            try {
+                //detect the user's upload picture
+                face_id = faceDetect(file);
+                //verify id in database
+                Result result = faceVerify(face_id, "user");
+
+                if (result.getCode().equals("0")) {
+                    //find identical user
+
+                    User user = userRepo.findByUser_face_id(result.getData().toString());
+                    String token = JwtUtil.sign(result.getData().toString());
+
+                    if (token != null) {
+                        //fill in token
+                        if (user.getType() == 1) {
+                            return Result.succ("User login!", "Token: " + token);
+                        } else {
+                            return Result.succ("Admin login!", "Token: " + token);
+                        }
+                    } else {
+                        return Result.fail("Access denied!");
+                    }
+                } else {
+                    return Result.fail("No such user information exist, please register!");
+                }
+            } catch (IOException | NullPointerException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+
+    @PostMapping("/team_login")
+    public Result teamLogin(@RequestParam("file") MultipartFile file) {
+
         if (file.getSize() == 0) {
             return Result.fail("File can't be empty!");
         }
-
         String face_id;
         try {
             //detect the user's upload picture
             face_id = faceDetect(file);
             //verify id in database
-            Result result = faceVerify(face_id);
+            Result result = faceVerify(face_id, "team");
 
             if (result.getCode().equals("0")) {
                 //find identical user
                 String token = JwtUtil.sign(result.getData().toString());
-
                 if (token != null) {
                     //fill in token
-                    return Result.succ("Successfully login!", "Token: " + token);
+                    return Result.succ("Team login!", "Token: " + token);
                 } else {
                     return Result.fail("Access denied!");
                 }
-
             } else {
-                return Result.fail("No such user information exist, please register!");
+                return Result.fail("No such team contacts information exist, please register!");
             }
         } catch (IOException | NullPointerException e) {
             e.printStackTrace();
@@ -207,6 +279,7 @@ public class FacialController {
 
         return null;
     }
+
 
 
     @PostMapping("/logout")
@@ -297,9 +370,18 @@ public class FacialController {
     }
 
     //detect user's face_id and verify
-    public Result faceVerify(String identify_id) {
+    public Result faceVerify(String identify_id, String identity) {
 
-        for (String id: userRepo.findAllID()) {
+        List<String> face_id = new ArrayList<>();
+
+        if (identity.equals("user")) {
+            face_id = userRepo.findAllID();
+        }
+        if (identity.equals("team")) {
+            face_id = teamRepo.findAllID();
+        }
+
+        for (String id: face_id) {
 
             HttpClient httpclient = HttpClientBuilder.create().build();
 
@@ -351,6 +433,7 @@ public class FacialController {
         return Result.fail("No data!");
 
     }
+
 
     //define a default person group
     public void personGroup() {

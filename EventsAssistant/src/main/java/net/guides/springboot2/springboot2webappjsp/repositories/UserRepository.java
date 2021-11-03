@@ -16,9 +16,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "select * from user where user_face_id = ?1",nativeQuery = true)
     public User findByUser_face_id(String face_id);
 
-
-
-
+    //find user by telephone
+    public User findUserByTelephone(String phone);
 
 
 }
