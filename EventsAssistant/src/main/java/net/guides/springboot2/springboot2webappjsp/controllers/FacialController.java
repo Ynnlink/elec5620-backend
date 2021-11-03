@@ -2,7 +2,9 @@ package net.guides.springboot2.springboot2webappjsp.controllers;
 
 
 import net.guides.springboot2.springboot2webappjsp.authentication.JwtUtil;
+import net.guides.springboot2.springboot2webappjsp.domain.RescueTeam;
 import net.guides.springboot2.springboot2webappjsp.domain.User;
+import net.guides.springboot2.springboot2webappjsp.repositories.RescueTeamRepository;
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
@@ -34,6 +36,8 @@ public class FacialController {
 
     @Autowired
     UserRepository userRepo;
+    @Autowired
+    RescueTeamRepository teamRepo;
 
     //Azure recognition api and key
     private final String endpoint = "https://5620.cognitiveservices.azure.com";
@@ -44,23 +48,30 @@ public class FacialController {
         personGroup();
     }
 
-    @PostMapping("/register")
+    @PostMapping("/user_register")
     public Result userRegister(@RequestParam("file") MultipartFile file,
                                @RequestParam("mobile_phone") String mobilePhone,
                                @RequestParam("user_name") String name) {
 
+
         String face_id = null;
 
-        //invalid condition
-        if (file.getSize() == 0) {
-            return Result.fail("File can't be empty!");
+        try {
+            //invalid condition
+            if (file.getSize() == 0) {
+                return Result.fail("File can't be empty!");
+            }
+            if (mobilePhone.length() == 0) {
+                return Result.fail("Mobile phone is required!");
+            }
+            if (name.length() == 0) {
+                return Result.fail("Name can't be empty!");
+            }
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            return Result.fail("Null value exist!");
         }
-        if (mobilePhone.length() == 0) {
-            return Result.fail("Mobile phone is required!");
-        }
-        if (name.length() == 0) {
-            return Result.fail("Name can't be empty!");
-        }
+
 
         //facial recognition function
         try {
@@ -80,14 +91,89 @@ public class FacialController {
                 user.setUser_face_id(face_id);
                 user.setUser_name(name);
                 user.setTelephone(mobilePhone);
+                user.setType(1);
+                user.setEmail(null);
                 userRepo.save(user);
                 return Result.succ("Successfully register!");
             }
         }
     }
 
+    @PostMapping("/team_register")
+    public Result teamRegister(@RequestParam("file") MultipartFile file,
+                               @RequestParam("team_name") String team_name,
+                               @RequestParam("contacts_name") String contacts_name,
+                               @RequestParam("mobile_phone") String mobile_phone,
+                               @RequestParam("address") String address,
+                               @RequestParam("personnel_number") Integer team_number,
+                               @RequestParam("rescue_type") String type){
+
+        String face_id = null;
+
+        try {
+            //invalid condition
+            if (file.getSize() == 0) {
+                return Result.fail("File can't be empty!");
+            }
+            if (team_name.length()== 0) {
+                return Result.fail("Team name is required!");
+            }
+            if (contacts_name.length() == 0) {
+                return Result.fail("Contacts' name can't be empty!");
+            }
+            if (mobile_phone.length() == 0) {
+                return Result.fail("Mobile phone can't be empty!");
+            }
+            if (address.length() == 0) {
+                return Result.fail("Team address is required!");
+            }
+            if (team_number == null) {
+                return Result.fail("Team members number is required!");
+            }
+            if (team_number <= 0){
+                return Result.fail("Team members number is invalid!");
+            }
+            if (type.length() == 0) {
+                return Result.fail("Rescue type is required!");
+            }
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+            return Result.fail("Null value exist!");
+        }
+
+        //facial recognition function
+        try {
+            face_id = faceDetect(file);
+        } catch (IOException | NullPointerException e) {
+            e.printStackTrace();
+        }
+
+        if (face_id == null) {
+            return Result.fail("Facial recognition fail!");
+        } else {
+            Result result = faceVerify(face_id);
+            if (result.getCode().equals("0")) {
+                return Result.fail("Already has register info!");
+            } else {
+                RescueTeam rescueTeam = new RescueTeam();
+                rescueTeam.setContacts_face_id(face_id);
+                rescueTeam.setTeam_name(team_name);
+                rescueTeam.setContacts_name(contacts_name);
+                rescueTeam.setMobile_phone(mobile_phone);
+                rescueTeam.setPersonnel_number(team_number);
+                rescueTeam.setAddress(address);
+                rescueTeam.setType(type);
+                teamRepo.save(rescueTeam);
+                return Result.succ("Successfully register!");
+            }
+        }
+    }
+
+
     @PostMapping("/login")
-    public Result userLogin(@RequestParam("file") MultipartFile file) {
+    public Result userLogin(@RequestParam("file") MultipartFile file,
+                            @RequestParam("name") String name,
+                            @RequestParam("mobile_phone") String mobile_phone) {
 
         //file can't be empty
         if (file.getSize() == 0) {
