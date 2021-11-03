@@ -35,5 +35,9 @@ public class RescueTeam {
     @Column(name = "rescue_type", nullable = false, length = 1024)
     private String type;
 
+    //1 for free, 2 for in-progress
+    @Column(name = "status", nullable = false)
+    private String status;
+
 
 }

@@ -95,7 +95,6 @@ public class FacialController {
                 user.setUser_name(name);
                 user.setTelephone(mobilePhone);
                 user.setType(1);
-                user.setEmail(null);
                 userRepo.save(user);
                 return Result.succ("Successfully register!");
             }

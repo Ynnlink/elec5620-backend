@@ -30,7 +30,5 @@ public class User {
     @Column(name = "user_type", nullable = false)
     private Integer type;
 
-    @Column(name = "email", length = 32)
-    private String email;
 
 }

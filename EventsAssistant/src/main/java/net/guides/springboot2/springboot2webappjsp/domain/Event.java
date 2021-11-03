@@ -52,9 +52,8 @@ public class Event {
     @Column(name = "event_level", nullable = false)
     private Integer level;
 
-    //event state: -1 delete, 0 wait, 1 complete, 2 in progress
+    //event state: 0 wait, 1 complete, 2 in progress
     @Column(name = "event_state", nullable = false)
     private Integer state;
-
 
 }
