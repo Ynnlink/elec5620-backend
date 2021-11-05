@@ -26,9 +26,9 @@ public class User {
     @Column(name = "telephone", nullable = false, length = 128)
     private String telephone;
 
-    //1 for refugees, 2 for admins
+    //user and admin
     @Column(name = "user_type", nullable = false)
-    private Integer type;
+    private String type;
 
 
 }

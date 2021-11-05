@@ -94,7 +94,7 @@ public class FacialController {
                 user.setUser_face_id(face_id);
                 user.setUser_name(name);
                 user.setTelephone(mobilePhone);
-                user.setType(1);
+                user.setType("user");
                 userRepo.save(user);
                 return Result.succ("Successfully register!");
             }
@@ -196,7 +196,7 @@ public class FacialController {
                         String token = JwtUtil.sign(user.getUser_face_id());
                         if (token != null) {
                             //fill in token
-                            if (user.getType() == 1) {
+                            if (user.getType().equals("user")) {
                                 return Result.succ("User login!", "Token: " + token);
                             } else {
                                 return Result.succ("Admin login!", "Token: " + token);
@@ -228,7 +228,7 @@ public class FacialController {
 
                     if (token != null) {
                         //fill in token
-                        if (user.getType() == 1) {
+                        if (user.getType().equals("user")) {
                             return Result.succ("User login!", "Token: " + token);
                         } else {
                             return Result.succ("Admin login!", "Token: " + token);
