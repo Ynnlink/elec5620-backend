@@ -33,7 +33,7 @@ public class ProfileController {
 		RescueTeam team = teamRepo.findByContacts_face_id(face_id);
 
 		if (user != null) {
-			return Result.succ("User/Admin query success!", user);
+			return Result.succ("User(Admin) query success!", user);
 		} else if (team != null) {
 			return Result.succ("Team query success!", team);
 		} else {

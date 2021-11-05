@@ -18,7 +18,7 @@ public class Event {
     @Column(name = "user_id", nullable = false, length = 32)
     private Integer user_id;
 
-    @Column(name = "rescue_team_id", nullable = false, length = 32)
+    @Column(name = "rescue_team_id", length = 32)
     private Integer team_id;
 
     @Column(name = "event_name", nullable = false)
@@ -27,7 +27,7 @@ public class Event {
     @Column(name = "event_description", nullable = false, length = 4096)
     private String event_description;
 
-    @Column(name = "event_pic_location")
+    @Column(name = "event_pic_location", nullable = false)
     private String event_pic_location;
 
     @Column(name = "city", nullable = false)
@@ -39,13 +39,13 @@ public class Event {
     @Column(name = "submit_date", nullable = false)
     private Date date;
 
-    @Column(name = "rescue_start_date", nullable = false)
+    @Column(name = "rescue_start_date")
     private Date start_date;
 
-    @Column(name = "rescue_report", nullable = false, length = 4096)
-    private Date rescue_report;
+    @Column(name = "rescue_report", length = 4096)
+    private String rescue_report;
 
-    @Column(name = "rescue_end_date", nullable = false)
+    @Column(name = "rescue_end_date")
     private Date end_date;
 
     //rate level from 1 to 10

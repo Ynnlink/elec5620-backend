@@ -52,7 +52,7 @@ public class FacialController {
         personGroup();
     }
 
-    @PostMapping("/user_register")
+    @PostMapping("/user")
     public Result userRegister(@RequestParam("file") MultipartFile file,
                                @RequestParam("mobile_phone") String mobilePhone,
                                @RequestParam("user_name") String name) {
@@ -101,7 +101,7 @@ public class FacialController {
         }
     }
 
-    @PostMapping("/team_register")
+    @PostMapping("/team")
     public Result teamRegister(@RequestParam("file") MultipartFile file,
                                @RequestParam("team_name") String team_name,
                                @RequestParam("contacts_name") String contacts_name,
@@ -294,7 +294,7 @@ public class FacialController {
         if(!multipartfile.isEmpty()){
 
             //temp file location
-            String contextPath = "C:\\Users\\Ning\\IdeaProjects\\springboot2-webapp-jsp\\src\\main\\resources\\tempDir";
+            String contextPath = "C:\\Users\\Ning\\IdeaProjects\\elec5620-backend\\EventsAssistant\\src\\main\\resources\\tempDir";
 
             File f = new File(contextPath);
             if(!f.exists()){
@@ -432,7 +432,6 @@ public class FacialController {
         return Result.fail("No data!");
 
     }
-
 
     //define a default person group
     public void personGroup() {
