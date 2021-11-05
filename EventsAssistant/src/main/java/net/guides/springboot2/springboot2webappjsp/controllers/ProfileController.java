@@ -5,6 +5,7 @@ import net.guides.springboot2.springboot2webappjsp.domain.RescueTeam;
 import net.guides.springboot2.springboot2webappjsp.domain.User;
 import net.guides.springboot2.springboot2webappjsp.repositories.RescueTeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
@@ -26,6 +27,7 @@ public class ProfileController {
 
 		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
 
+		//find user or team in database
 		User user = userRepo.findByUser_face_id(face_id);
 		RescueTeam team = teamRepo.findByContacts_face_id(face_id);
 
@@ -39,9 +41,59 @@ public class ProfileController {
 	}
 
 	@PutMapping("/user-profile")
-	public Result editUserProfile(HttpServletRequest request) {
+	public Result editUserProfile(HttpServletRequest request, @RequestBody User updateUser) {
+
+		//update content
+		String phone = updateUser.getTelephone();
+		String name = updateUser.getUser_name();
+
+		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
+
+		//find user in database
+		User user = userRepo.findByUser_face_id(face_id);
+
+		if (user != null) {
+			try {
+				//invalid condition
+				if (StringUtils.isEmpty(phone)) {
+					return Result.fail("Mobile phone number can't be empty!");
+				} else if (StringUtils.isEmpty(name)) {
+					return Result.fail("Name can't be empty!");
+				} else {
+					user.setUser_name(name);
+					user.setTelephone(phone);
+					userRepo.save(user);
+					User temp = userRepo.findByUser_face_id(face_id);
+					if (temp.getUser_name().equals(name) && temp.getTelephone().equals(phone)) {
+						return Result.succ("Update success!");
+					} else {
+						return Result.fail("Update fail!");
+					}
+				}
+			} catch (NullPointerException npe) {
+				return Result.fail("Null value exist!");
+			}
+		} else {
+			return Result.fail("No such user!");
+		}
+	}
+
+	@PutMapping("/team-profile")
+	public Result editTeamProfile(HttpServletRequest request, @RequestBody RescueTeam team) {
+
+
+
+
+
+
+
+
+
+
+
 		return null;
 	}
+
 
 
 
