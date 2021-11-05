@@ -22,7 +22,8 @@ public class ProfileController {
 	@Autowired
 	RescueTeamRepository teamRepo;
 
-	@GetMapping("/get_info")
+	//default method
+	@GetMapping
 	public Result getUserProfile(HttpServletRequest request) {
 
 		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
@@ -40,7 +41,7 @@ public class ProfileController {
 		}
 	}
 
-	@PutMapping("/user-profile")
+	@PutMapping("/user")
 	public Result editUserProfile(HttpServletRequest request, @RequestParam(value = "name") String name, @RequestParam(value = "phone") String phone) {
 
 		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
@@ -74,21 +75,50 @@ public class ProfileController {
 		}
 	}
 
-	@PutMapping("/team-profile")
-	public Result editTeamProfile(HttpServletRequest request, @RequestBody RescueTeam team) {
+	@PutMapping("/team")
+	public Result editTeamProfile(HttpServletRequest request, @RequestBody RescueTeam updateTeam) {
 
+		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
 
+		//find team in database
+		RescueTeam team = teamRepo.findByContacts_face_id(face_id);
 
+		//invalid condition
+		if (StringUtils.isEmpty(updateTeam.getMobile_phone())) {
+			return Result.fail("Contacts mobile phone can't be empty!");
+		} else if (StringUtils.isEmpty(updateTeam.getAddress())) {
+			return Result.fail("Address can't be empty!");
+		} else if (StringUtils.isEmpty(updateTeam.getTeam_name())) {
+			return Result.fail("Team name can't be empty!");
+		} else if (StringUtils.isEmpty(updateTeam.getType())) {
+			return Result.fail("Rescue type can't be empty!");
+		} else if (updateTeam.getPersonnel_number() <= 0) {
+			return Result.fail("Invalid personnel number!");
+		} else {
+			//update database
 
+			team.setTeam_name(updateTeam.getTeam_name());
+			team.setAddress(updateTeam.getAddress());
+			team.setMobile_phone(updateTeam.getMobile_phone());
+			team.setType(updateTeam.getType());
+			team.setPersonnel_number(updateTeam.getPersonnel_number());
 
+			teamRepo.save(team);
 
-		return null;
+			RescueTeam temp = teamRepo.findByContacts_face_id(face_id);
+
+			//validate data
+			boolean condition = updateTeam.getTeam_name().equals(team.getTeam_name())
+					&& updateTeam.getAddress().equals(temp.getAddress())
+					&& updateTeam.getMobile_phone().equals(temp.getMobile_phone())
+					&& updateTeam.getType().equals(temp.getType())
+					&& updateTeam.getPersonnel_number() == team.getPersonnel_number();
+
+			if (condition) {
+				return Result.succ("Update success!");
+			} else {
+				return Result.fail("Update fail!");
+			}
+		}
 	}
-
-
-
-
-
-
-
 }
