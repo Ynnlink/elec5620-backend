@@ -41,11 +41,7 @@ public class ProfileController {
 	}
 
 	@PutMapping("/user-profile")
-	public Result editUserProfile(HttpServletRequest request, @RequestBody User updateUser) {
-
-		//update content
-		String phone = updateUser.getTelephone();
-		String name = updateUser.getUser_name();
+	public Result editUserProfile(HttpServletRequest request, @RequestParam(value = "name") String name, @RequestParam(value = "phone") String phone) {
 
 		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
 
@@ -80,11 +76,6 @@ public class ProfileController {
 
 	@PutMapping("/team-profile")
 	public Result editTeamProfile(HttpServletRequest request, @RequestBody RescueTeam team) {
-
-
-
-
-
 
 
 
