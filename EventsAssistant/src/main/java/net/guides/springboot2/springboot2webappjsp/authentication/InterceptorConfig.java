@@ -22,7 +22,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/profile/**")
                 .excludePathPatterns("/event/**")
                 .excludePathPatterns("/admin/**")
-                .excludePathPatterns("/rescue/**");
+                .excludePathPatterns("/rescue_team/**");
     }
 
     @Bean

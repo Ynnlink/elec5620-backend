@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @RestController
-@RequestMapping("/rescue")
+@RequestMapping("/rescue_team")
 public class RescueTeamController {
 
     @Autowired
@@ -26,27 +26,84 @@ public class RescueTeamController {
     EventRepository eventRepo;
 
     @PostMapping
-    public Result takeoverEvent(HttpServletRequest request, @RequestParam(value = "event_id") String id) {
+    public Result takeoverEvent(HttpServletRequest request, @RequestParam(value = "event_id") int id) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
         if (result.getCode().equals("-1")) {
             return Result.fail("Token expired!");
         }
         String face_id = result.getData().toString();
+        RescueTeam team = teamRepo.findByContacts_face_id(face_id);
+        Optional<Event> event = eventRepo.findById(id);
+        //invalid condition
+        if (team == null) {
+            return Result.fail("No such team!");
+        } else if (id <= 0) {
+            return Result.fail("Invalid event id!");
+        } else if (!event.isPresent()) {
+            return Result.fail("No such event!");
+        } else if (event.get().getState() == 1 || event.get().getState() == 2) {
+            return Result.fail("Can't take over in-progress/complete event!");
+        } else {
+            event.get().setTeam_id(team.getTeam_id());
+            event.get().setStart_date(new Date(System.currentTimeMillis()));
+            event.get().setState(2);
+            team.setStatus("busy");
 
-        return null;
+            //saving information
+            teamRepo.save(team);
+            eventRepo.save(event.get());
+
+            //validate
+            Optional<Event> tempEvent = eventRepo.findById(id);
+            RescueTeam tempTeam = teamRepo.findByContacts_face_id(face_id);
+
+            if (tempTeam.getStatus().equals("busy") && tempEvent.get().getTeam_id().equals(tempTeam.getTeam_id())) {
+                return Result.succ("Take over success!");
+            } else {
+                return Result.fail("Take over fail!");
+            }
+        }
     }
 
     @PostMapping("/complete")
-    public Result completeEvent(HttpServletRequest request, @RequestParam(value = "event_id") String id, @RequestParam(value = "report") String report) {
+    public Result completeEvent(HttpServletRequest request, @RequestParam(value = "event_id") int id, @RequestParam(value = "report") String report) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
         if (result.getCode().equals("-1")) {
             return Result.fail("Token expired!");
         }
         String face_id = result.getData().toString();
+        RescueTeam team = teamRepo.findByContacts_face_id(face_id);
+        Optional<Event> event = eventRepo.findById(id);
+        if (team == null) {
+            return Result.fail("No such team!");
+        } else if (id <= 0) {
+            return Result.fail("Invalid event id!");
+        } else if (!event.isPresent()) {
+            return Result.fail("No such event!");
+        } else if (event.get().getState() == 0 || event.get().getState() == 1) {
+            return Result.fail("Can't complete waiting/complete event!");
+        } else {
 
-        return null;
+            event.get().setEnd_date(new Date(System.currentTimeMillis()));
+            event.get().setState(1);
+            team.setStatus("free");
+
+            //saving information
+            teamRepo.save(team);
+            eventRepo.save(event.get());
+
+            //validate
+            Optional<Event> tempEvent = eventRepo.findById(id);
+            RescueTeam tempTeam = teamRepo.findByContacts_face_id(face_id);
+
+            if (tempTeam.getStatus().equals("free") && tempEvent.get().getState() == 1) {
+                return Result.succ("Complete event!");
+            } else {
+                return Result.fail("Complete fail!");
+            }
+        }
     }
 
     @PostMapping("/change_status")
@@ -57,6 +114,14 @@ public class RescueTeamController {
             return Result.fail("Token expired!");
         }
         String face_id = result.getData().toString();
+        RescueTeam team = teamRepo.findByContacts_face_id(face_id);
+        if (team == null) {
+            return Result.fail("No such team!");
+        }
+
+
+
+
 
         return null;
 
@@ -85,7 +150,17 @@ public class RescueTeamController {
             if (freeTeam.isEmpty()) {
                 return Result.fail("No free teams available!");
             } else {
-                return Result.succ("Query success!", teamRepo.findAllFreeTeam());
+                List<Map<String, Object>> returnResult = new ArrayList<>();
+                for (RescueTeam temp: freeTeam) {
+                    Map<String, Object> info = new LinkedHashMap<>();
+                    info.put("rescue_team_name", temp.getTeam_name());
+                    info.put("contacts_name", temp.getContacts_name());
+                    info.put("contacts_phone", temp.getMobile_phone());
+                    info.put("personnel_number", temp.getPersonnel_number());
+                    info.put("rescue_type", temp.getType());
+                    returnResult.add(info);
+                }
+                return Result.succ("Query success!", returnResult);
             }
         } else {
             //admin
@@ -97,9 +172,4 @@ public class RescueTeamController {
             }
         }
     }
-
-
-
-
-
 }
