@@ -26,7 +26,7 @@ public class EventController {
     @Autowired
     EventRepository eventRepo;
 
-    //list current user's event
+    //list current user's corresponding event
     @GetMapping
     public Result getEvent(HttpServletRequest request) {
 
@@ -45,6 +45,9 @@ public class EventController {
 
         //find all relevant events
         List<Event> events = eventRepo.findByUser_id(user.getId());
+        if (events.size() == 0) {
+            return Result.fail("No events!");
+        }
 
         //build a return list
         List<Map<String, Object>> eventResult = new ArrayList<>();
@@ -80,14 +83,11 @@ public class EventController {
             eventResult.add(info);
         }
 
-        if (eventResult.size() == 0) {
-            return Result.fail("No event available!");
-        } else {
-            return Result.succ("Query success!", eventResult);
-        }
+        return Result.succ("Query success!", eventResult);
     }
 
-    //list all event (admin)
+    //list all events (admin)
+    //list all waiting events (team)
     @GetMapping("/all")
     public Result getAllEvent(HttpServletRequest request) {
         //validate token
@@ -108,6 +108,9 @@ public class EventController {
             } else {
                 //return waiting events for team
                 List<Event> events = eventRepo.findAllAvailableEvents();
+                if (events.size() == 0) {
+                    return Result.fail("No events!");
+                }
 
                 //build a return list
                 List<Map<String, Object>> eventResult = new ArrayList<>();
@@ -139,7 +142,11 @@ public class EventController {
             return Result.fail("No authorize!");
         } else {
             //return all events for admin
-            return Result.succ("Query success!", eventRepo.findAll());
+            List<Event> events = eventRepo.findAll();
+            if (events.size() == 0) {
+                return Result.fail("No events!");
+            }
+            return Result.succ("Query success!", events);
         }
 
     }
@@ -222,23 +229,90 @@ public class EventController {
 
 
 
-
-
-
-
-
-
-
-
-
-
         return null;
     }
 
+
+    //rate a event (admin)
+    @PostMapping("/rate")
+    public Result editEvent(HttpServletRequest request, @RequestParam(value = "level") int level, @RequestParam(value = "event_id") int id) {
+        //validate token
+        Result result = JwtUtil.getUserFaceIdByToken(request);
+        if (result.getCode().equals("-1")) {
+            return Result.fail("Token expired!");
+        }
+        String face_id = result.getData().toString();
+
+        //find admin
+        User admin = userRepo.findByUser_face_id(face_id);
+        if (admin == null) {
+            return Result.fail("No such admin information!");
+        } else if (admin.getType().equals("user")) {
+            return Result.fail("No authorize!");
+        } else {
+            Optional<Event> event = eventRepo.findById(id);
+
+            if (!event.isPresent()) {
+                return Result.fail("No such event!");
+            } else {
+                event.get().setLevel(level);
+                eventRepo.save(event.get());
+                //validate
+                Optional<Event> temp = eventRepo.findById(id);
+                if (temp.get().getLevel() == level) {
+                    return Result.succ("Rate success!");
+                } else {
+                    return Result.fail("Rate fail!");
+                }
+            }
+        }
+    }
+
+
     //delete event
     @DeleteMapping
-    public Result deleteEvent(HttpServletRequest request, @RequestParam(value = "event_id") String id) {
-        return null;
+    public Result deleteEvent(HttpServletRequest request, @RequestParam(value = "event_id") int id) {
+        //validate token
+        Result result = JwtUtil.getUserFaceIdByToken(request);
+        if (result.getCode().equals("-1")) {
+            return Result.fail("Token expired!");
+        }
+        String face_id = result.getData().toString();
+
+        //find user
+        User user = userRepo.findByUser_face_id(face_id);
+        if (user == null) {
+            return Result.fail("No such user's information!");
+        } else if (user.getType().equals("user")) {
+            //user function
+            Optional<Event> event = eventRepo.findById(id);
+
+            if (!event.isPresent()) {
+                return Result.fail("No such event exist!");
+            } else {
+
+                if (event.get().getState() == 2) {
+                    return Result.fail("Can't delete a in-progress event!");
+                } else {
+                    eventRepo.deleteById(id);
+                    Optional<Event> temp = eventRepo.findById(id);
+                    if (!temp.isPresent()) {
+                        return Result.succ("Delete success!");
+                    } else {
+                        return Result.fail("Delete fail!");
+                    }
+                }
+            }
+        } else {
+            //admin function
+            eventRepo.deleteById(id);
+            Optional<Event> temp = eventRepo.findById(id);
+            if (!temp.isPresent()) {
+                return Result.succ("Delete success!");
+            } else {
+                return Result.fail("Delete fail!");
+            }
+        }
     }
 
 
