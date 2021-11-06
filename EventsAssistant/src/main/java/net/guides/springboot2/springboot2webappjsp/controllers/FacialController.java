@@ -294,7 +294,7 @@ public class FacialController {
         if(!multipartfile.isEmpty()){
 
             //temp file location
-            String contextPath = "C:\\Users\\Ning\\IdeaProjects\\elec5620-backend\\EventsAssistant\\src\\main\\resources\\tempDir";
+            String contextPath = "C:/Users/Ning/IdeaProjects/elec5620-backend/EventsAssistant/src/main/resources/tempDir";
 
             File f = new File(contextPath);
             if(!f.exists()){

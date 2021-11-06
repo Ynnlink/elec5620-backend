@@ -2,6 +2,7 @@ package net.guides.springboot2.springboot2webappjsp.controllers;
 
 import net.guides.springboot2.springboot2webappjsp.authentication.JwtUtil;
 import net.guides.springboot2.springboot2webappjsp.domain.Event;
+import net.guides.springboot2.springboot2webappjsp.domain.RescueTeam;
 import net.guides.springboot2.springboot2webappjsp.domain.User;
 import net.guides.springboot2.springboot2webappjsp.repositories.EventRepository;
 import net.guides.springboot2.springboot2webappjsp.repositories.RescueTeamRepository;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
+import java.util.*;
 
 @RestController
 @RequestMapping("event")
@@ -28,22 +29,134 @@ public class EventController {
     //list current user's event
     @GetMapping
     public Result getEvent(HttpServletRequest request) {
-        return null;
+
+        //validate token
+        Result result = JwtUtil.getUserFaceIdByToken(request);
+        if (result.getCode().equals("-1")) {
+            return Result.fail("Token expired!");
+        }
+        String face_id = result.getData().toString();
+
+        //find user
+        User user = userRepo.findByUser_face_id(face_id);
+        if (user == null) {
+            return Result.fail("No such user's information!");
+        }
+
+        //find all relevant events
+        List<Event> events = eventRepo.findByUser_id(user.getId());
+
+        //build a return list
+        List<Map<String, Object>> eventResult = new ArrayList<>();
+
+        for (Event temp: events) {
+            Map<String, Object> info = new LinkedHashMap<>();
+
+            //basic information
+            info.put("event_name", temp.getEvent_name());
+            info.put("event_description", temp.getEvent_description());
+            info.put("city", temp.getCity());
+            info.put("address", temp.getAddress());
+            info.put("submit_date", temp.getDate());
+            info.put("start_date", temp.getStart_date());
+            info.put("end_date", temp.getEnd_date());
+            info.put("pic_location", temp.getEvent_pic_location());
+
+            //additional information
+            if (temp.getState() == 0) {
+                info.put("state", "Waiting");
+            } else if (temp.getState() == 2) {
+                Optional<RescueTeam> team = teamRepo.findById(temp.getTeam_id());
+                info.put("state", "In-progress");
+                info.put("Rescue team", team.get().getTeam_name());
+                info.put("Contact information", team.get().getMobile_phone());
+            } else if (temp.getState() == 1) {
+                Optional<RescueTeam> team = teamRepo.findById(temp.getTeam_id());
+                info.put("state", "Complete");
+                info.put("Rescue team", team.get().getTeam_name());
+                info.put("Report", temp.getRescue_report());
+            }
+
+            eventResult.add(info);
+        }
+
+        if (eventResult.size() == 0) {
+            return Result.fail("No event available!");
+        } else {
+            return Result.succ("Query success!", eventResult);
+        }
     }
 
     //list all event (admin)
     @GetMapping("/all")
     public Result getAllEvent(HttpServletRequest request) {
-        return null;
+        //validate token
+        Result result = JwtUtil.getUserFaceIdByToken(request);
+        if (result.getCode().equals("-1")) {
+            return Result.fail("Token expired!");
+        }
+        String face_id = result.getData().toString();
+
+        //find admin and validate
+        User user = userRepo.findByUser_face_id(face_id);
+        //find team
+        RescueTeam team = teamRepo.findByContacts_face_id(face_id);
+
+        if (user == null) {
+            if (team == null) {
+                return Result.fail("No such user's information!");
+            } else {
+                //return waiting events for team
+                List<Event> events = eventRepo.findAllAvailableEvents();
+
+                //build a return list
+                List<Map<String, Object>> eventResult = new ArrayList<>();
+
+                for (Event temp: events) {
+                    Map<String, Object> info = new LinkedHashMap<>();
+
+                    Optional<User> correspondingUser = userRepo.findById(temp.getUser_id());
+
+                    //basic information
+                    info.put("event_name", temp.getEvent_name());
+                    info.put("event_description", temp.getEvent_description());
+                    info.put("city", temp.getCity());
+                    info.put("address", temp.getAddress());
+                    info.put("submit_date", temp.getDate());
+                    info.put("pic_location", temp.getEvent_pic_location());
+                    info.put("level", temp.getLevel());
+
+                    //additional information
+                    info.put("Contacts name", correspondingUser.get().getUser_name());
+                    info.put("Contacts phone", correspondingUser.get().getTelephone());
+
+                    eventResult.add(info);
+                }
+                return Result.succ("Query success!", eventResult);
+            }
+
+        } else if (user.getType().equals("user")) {
+            return Result.fail("No authorize!");
+        } else {
+            //return all events for admin
+            return Result.succ("Query success!", eventRepo.findAll());
+        }
+
     }
 
     //post a new event
     @PostMapping
     public Result postEvent(HttpServletRequest request, Event event, @RequestParam(value = "file") MultipartFile file) {
 
-        String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
-        User user = userRepo.findByUser_face_id(face_id);
+        //validate token
+        Result result = JwtUtil.getUserFaceIdByToken(request);
+        if (result.getCode().equals("-1")) {
+            return Result.fail("Token expired!");
+        }
+        String face_id = result.getData().toString();
 
+        //find user
+        User user = userRepo.findByUser_face_id(face_id);
         if (user == null) {
             return Result.fail("No such user's information!");
         }
@@ -90,7 +203,35 @@ public class EventController {
 
     //edit a current event
     @PutMapping
-    public Result editEvent(HttpServletRequest request, @RequestParam(value = "event_id") String id) {
+    public Result editEvent(HttpServletRequest request, Event event, @RequestParam(value = "event_id") String id) {
+        //validate token
+        Result result = JwtUtil.getUserFaceIdByToken(request);
+        if (result.getCode().equals("-1")) {
+            return Result.fail("Token expired!");
+        }
+        String face_id = result.getData().toString();
+
+        //find user
+        User user = userRepo.findByUser_face_id(face_id);
+        if (user == null) {
+            return Result.fail("No such user's information!");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         return null;
     }
 

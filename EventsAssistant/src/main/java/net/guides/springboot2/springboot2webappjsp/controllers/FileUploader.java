@@ -11,7 +11,7 @@ public class FileUploader {
 
     public static String fileUpload(MultipartFile file) {
         //File upload path
-        String storePath = "C:\\Users\\Ning\\IdeaProjects\\elec5620-backend\\EventsAssistant\\src\\main\\resources\\static";
+        String storePath = "C:/Users/Ning/IdeaProjects/elec5620-backend/EventsAssistant/src/main/resources/static";
         //Using original filename
         String storeName = file.getOriginalFilename();
         //New file store path

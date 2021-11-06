@@ -30,6 +30,15 @@ public class RescueTeamController {
         return null;
     }
 
+    @PostMapping("/change_status")
+    public Result changeStatus(HttpServletRequest request, @RequestParam(value = "status") String status) {
+
+        return null;
+
+
+    }
+
+
     @GetMapping
     public Result listAllTeam(HttpServletRequest request) {
         return null;

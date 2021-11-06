@@ -26,7 +26,12 @@ public class ProfileController {
 	@GetMapping
 	public Result getUserProfile(HttpServletRequest request) {
 
-		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
+		//validate token
+		Result result = JwtUtil.getUserFaceIdByToken(request);
+		if (result.getCode().equals("-1")) {
+			return Result.fail("Token expired!");
+		}
+		String face_id = result.getData().toString();
 
 		//find user or team in database
 		User user = userRepo.findByUser_face_id(face_id);
@@ -44,7 +49,12 @@ public class ProfileController {
 	@PutMapping("/user")
 	public Result editUserProfile(HttpServletRequest request, @RequestParam(value = "name") String name, @RequestParam(value = "phone") String phone) {
 
-		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
+		//validate token
+		Result result = JwtUtil.getUserFaceIdByToken(request);
+		if (result.getCode().equals("-1")) {
+			return Result.fail("Token expired!");
+		}
+		String face_id = result.getData().toString();
 
 		//find user in database
 		User user = userRepo.findByUser_face_id(face_id);
@@ -78,7 +88,12 @@ public class ProfileController {
 	@PutMapping("/team")
 	public Result editTeamProfile(HttpServletRequest request, @RequestBody RescueTeam updateTeam) {
 
-		String face_id = JwtUtil.getUserFaceIdByToken(request).getData().toString();
+		//validate token
+		Result result = JwtUtil.getUserFaceIdByToken(request);
+		if (result.getCode().equals("-1")) {
+			return Result.fail("Token expired!");
+		}
+		String face_id = result.getData().toString();
 
 		//find team in database
 		RescueTeam team = teamRepo.findByContacts_face_id(face_id);
