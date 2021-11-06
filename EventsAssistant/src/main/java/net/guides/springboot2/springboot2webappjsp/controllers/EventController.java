@@ -144,7 +144,7 @@ public class EventController {
             if (events.size() == 0) {
                 return Result.fail("No events!");
             }
-            return Result.succ("Query success!", events);
+            return Result.succ("Query success! (State: 0 wait, 1 complete, 2 in progress)", events);
         }
 
     }
@@ -282,6 +282,9 @@ public class EventController {
             if (!event.isPresent()) {
                 return Result.fail("No such event!");
             } else {
+                if (event.get().getState() == 1 || event.get().getState() == 2) {
+                    return Result.fail("Can't rate a complete/in-progress event!");
+                }
                 event.get().setLevel(level);
                 eventRepo.save(event.get());
                 //validate

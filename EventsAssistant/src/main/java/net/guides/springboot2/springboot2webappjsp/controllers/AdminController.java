@@ -24,7 +24,20 @@ public class AdminController {
     EventRepository eventRepo;
 
     @PostMapping
-    public Result allocateTeam(HttpServletRequest request, @RequestParam(value = "team_id") String team_id, @RequestParam(value = "event_id") String event_id) {
+    public Result allocateTeam(HttpServletRequest request,
+                               @RequestParam(value = "team_id") String team_id,
+                               @RequestParam(value = "event_id") String event_id) {
+
+
+
+
+
+
+
+
+
+
+
         return null;
     }
 
