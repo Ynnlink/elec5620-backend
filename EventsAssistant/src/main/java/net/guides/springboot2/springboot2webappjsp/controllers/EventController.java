@@ -58,7 +58,6 @@ public class EventController {
             //basic information
             info.put("event_name", temp.getEvent_name());
             info.put("event_description", temp.getEvent_description());
-            info.put("city", temp.getCity());
             info.put("address", temp.getAddress());
             info.put("submit_date", temp.getDate());
             info.put("start_date", temp.getStart_date());
@@ -123,7 +122,6 @@ public class EventController {
                     //basic information
                     info.put("event_name", temp.getEvent_name());
                     info.put("event_description", temp.getEvent_description());
-                    info.put("city", temp.getCity());
                     info.put("address", temp.getAddress());
                     info.put("submit_date", temp.getDate());
                     info.put("pic_location", temp.getEvent_pic_location());
@@ -175,8 +173,6 @@ public class EventController {
             return Result.fail("Event name can't be empty!");
         } else if (StringUtils.isEmpty(event.getEvent_description())) {
             return Result.fail("Event description can't be empty!");
-        } else if (StringUtils.isEmpty(event.getCity())) {
-            return Result.fail("City can't be empty!");
         } else if (StringUtils.isEmpty(event.getAddress())) {
             return Result.fail("Address can't be empty!");
         } else {
@@ -210,7 +206,10 @@ public class EventController {
 
     //edit a current event
     @PutMapping
-    public Result editEvent(HttpServletRequest request, Event event, @RequestParam(value = "event_id") String id) {
+    public Result editEvent(HttpServletRequest request,
+                            @RequestParam(value = "event_id") int id,
+                            @RequestParam(value = "address") String address,
+                            @RequestParam(value = "description") String description) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
         if (result.getCode().equals("-1")) {
@@ -224,12 +223,40 @@ public class EventController {
             return Result.fail("No such user's information!");
         }
 
+        //find corresponding event
+        Optional<Event> event = eventRepo.findById(id);
 
+        if (!event.isPresent()) {
+            return Result.fail("No such event exist!");
+        } else if (StringUtils.isEmpty(address)) {
+            return Result.fail("Address can't be empty!");
+        } else if (StringUtils.isEmpty(description)) {
+            return Result.fail("Description can't be empty");
+        } else {
+            //user can only change its events
+            if (user.getType().equals("user")) {
+                if (event.get().getUser_id() == user.getId()) {
+                    event.get().setAddress(address);
+                    event.get().setEvent_description(description);
+                    eventRepo.save(event.get());
+                } else {
+                    return Result.fail("Can't change others' events!");
+                }
+            } else {
+                //admin can change all event
+                event.get().setAddress(address);
+                event.get().setEvent_description(description);
+                eventRepo.save(event.get());
+            }
+            //validate
+            Optional<Event> temp = eventRepo.findById(id);
+            if (temp.get().getAddress().equals(address) && temp.get().getEvent_description().equals(description)) {
+                return Result.succ("Update success!");
+            } else {
+                return Result.fail("Update fail!");
+            }
+        }
 
-
-
-
-        return null;
     }
 
 

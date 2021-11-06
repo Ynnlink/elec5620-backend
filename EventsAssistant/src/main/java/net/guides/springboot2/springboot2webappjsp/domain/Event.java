@@ -30,9 +30,6 @@ public class Event {
     @Column(name = "event_pic_location", nullable = false)
     private String event_pic_location;
 
-    @Column(name = "city", nullable = false)
-    private String city;
-
     @Column(name = "address", nullable = false, length = 512)
     private String address;
 

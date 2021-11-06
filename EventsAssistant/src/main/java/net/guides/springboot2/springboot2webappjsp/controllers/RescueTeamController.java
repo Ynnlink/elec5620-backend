@@ -60,6 +60,7 @@ public class RescueTeamController {
     }
 
 
+    //list all free team
     @GetMapping
     public Result listAllTeam(HttpServletRequest request) {
         //validate token
