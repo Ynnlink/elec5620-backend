@@ -59,6 +59,8 @@ public class AdminController {
                 return Result.fail("No such team exist!");
             } else if (!event.isPresent()) {
                 return Result.fail("No such event exist!");
+            } else if (team.get().getStatus().equals("busy")) {
+                return Result.fail("Select team is busy!");
             } else {
 
                 event.get().setTeam_id(team_id);

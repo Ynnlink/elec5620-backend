@@ -44,6 +44,8 @@ public class RescueTeamController {
             return Result.fail("No such event!");
         } else if (event.get().getState() == 1 || event.get().getState() == 2) {
             return Result.fail("Can't take over in-progress/complete event!");
+        } else if (eventRepo.findByTeam_id(team.getTeam_id()) != null) {
+            return Result.fail("An event has been allocated!");
         } else {
             event.get().setTeam_id(team.getTeam_id());
             event.get().setStart_date(new Date(System.currentTimeMillis()));
@@ -117,15 +119,26 @@ public class RescueTeamController {
         RescueTeam team = teamRepo.findByContacts_face_id(face_id);
         if (team == null) {
             return Result.fail("No such team!");
+        } else if (eventRepo.findByTeam_id(team.getTeam_id()) != null) {
+            return Result.fail("An event has been allocated!");
+        } else {
+
+            //save information
+            if (status.equals("free") || status.equals("busy")) {
+                team.setStatus(status);
+            }  else {
+                return Result.fail("Invalid status!");
+            }
+            teamRepo.save(team);
+
+            //validate
+            RescueTeam temp = teamRepo.findByContacts_face_id(face_id);
+            if (temp.getStatus().equals(status)) {
+                return Result.succ("Change success!");
+            } else {
+                return Result.fail("Change fail!");
+            }
         }
-
-
-
-
-
-        return null;
-
-
     }
 
 
