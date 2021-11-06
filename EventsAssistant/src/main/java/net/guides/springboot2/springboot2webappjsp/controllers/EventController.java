@@ -32,7 +32,7 @@ public class EventController {
     }
 
     //list all event (admin)
-    @GetMapping
+    @GetMapping("/all")
     public Result getAllEvent(HttpServletRequest request) {
         return null;
     }

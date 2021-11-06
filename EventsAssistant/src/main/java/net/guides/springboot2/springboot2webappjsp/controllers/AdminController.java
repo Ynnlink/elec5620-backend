@@ -4,9 +4,12 @@ import net.guides.springboot2.springboot2webappjsp.repositories.EventRepository;
 import net.guides.springboot2.springboot2webappjsp.repositories.RescueTeamRepository;
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 @RestController
@@ -19,6 +22,13 @@ public class AdminController {
     RescueTeamRepository teamRepo;
     @Autowired
     EventRepository eventRepo;
+
+    @PostMapping
+    public Result allocateTeam(HttpServletRequest request, @RequestParam(value = "team_id") String team_id, @RequestParam(value = "event_id") String event_id) {
+        return null;
+    }
+
+
 
 
 

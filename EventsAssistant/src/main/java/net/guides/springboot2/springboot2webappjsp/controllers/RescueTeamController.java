@@ -5,10 +5,7 @@ import net.guides.springboot2.springboot2webappjsp.repositories.EventRepository;
 import net.guides.springboot2.springboot2webappjsp.repositories.RescueTeamRepository;
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -29,7 +26,12 @@ public class RescueTeamController {
     }
 
     @PostMapping("/complete")
-    public Result completeEvent(HttpServletRequest request, @RequestParam(value = "event_id") String id) {
+    public Result completeEvent(HttpServletRequest request, @RequestParam(value = "event_id") String id, @RequestParam(value = "report") String report) {
+        return null;
+    }
+
+    @GetMapping
+    public Result listAllTeam(HttpServletRequest request) {
         return null;
     }
 
