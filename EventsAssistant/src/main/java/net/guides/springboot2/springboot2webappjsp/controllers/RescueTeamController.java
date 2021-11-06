@@ -2,6 +2,9 @@ package net.guides.springboot2.springboot2webappjsp.controllers;
 
 
 import net.guides.springboot2.springboot2webappjsp.authentication.JwtUtil;
+import net.guides.springboot2.springboot2webappjsp.domain.Event;
+import net.guides.springboot2.springboot2webappjsp.domain.RescueTeam;
+import net.guides.springboot2.springboot2webappjsp.domain.User;
 import net.guides.springboot2.springboot2webappjsp.repositories.EventRepository;
 import net.guides.springboot2.springboot2webappjsp.repositories.RescueTeamRepository;
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
@@ -9,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.*;
 
 @RestController
 @RequestMapping("/rescue")
@@ -60,7 +64,8 @@ public class RescueTeamController {
     }
 
 
-    //list all free team
+    //list all free teams (user)
+    //list all teams (admin)
     @GetMapping
     public Result listAllTeam(HttpServletRequest request) {
         //validate token
@@ -70,8 +75,27 @@ public class RescueTeamController {
         }
         String face_id = result.getData().toString();
 
+        //find user and validate
+        User user = userRepo.findByUser_face_id(face_id);
 
-        return null;
+        if (user == null) {
+            return Result.fail("No such user's information!");
+        } else if (user.getType().equals("user")) {
+            List<RescueTeam> freeTeam = teamRepo.findAllFreeTeam();
+            if (freeTeam.isEmpty()) {
+                return Result.fail("No free teams available!");
+            } else {
+                return Result.succ("Query success!", teamRepo.findAllFreeTeam());
+            }
+        } else {
+            //admin
+            List<RescueTeam> allTeam = teamRepo.findAllFreeTeam();
+            if (allTeam.isEmpty()) {
+                return Result.fail("No teams!");
+            } else {
+                return Result.succ("Query success!", allTeam);
+            }
+        }
     }
 
 

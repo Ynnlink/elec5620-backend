@@ -18,5 +18,8 @@ public interface RescueTeamRepository extends JpaRepository<RescueTeam, Integer>
     @Query(value = "select * from rescue_team where contacts_face_id = ?1",nativeQuery = true)
     public RescueTeam findByContacts_face_id(String face_id);
 
+    //find all the free team
+    @Query(value = "select * from rescue_team where status = 'free'", nativeQuery = true)
+    public List<RescueTeam> findAllFreeTeam();
 
 }
