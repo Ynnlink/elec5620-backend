@@ -8,10 +8,7 @@ import net.guides.springboot2.springboot2webappjsp.repositories.RescueTeamReposi
 import net.guides.springboot2.springboot2webappjsp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +25,19 @@ public class EventController {
     @Autowired
     EventRepository eventRepo;
 
+    //list current user's event
+    @GetMapping
+    public Result getEvent(HttpServletRequest request) {
+        return null;
+    }
 
+    //list all event (admin)
+    @GetMapping
+    public Result getAllEvent(HttpServletRequest request) {
+        return null;
+    }
+
+    //post a new event
     @PostMapping
     public Result postEvent(HttpServletRequest request, Event event, @RequestParam(value = "file") MultipartFile file) {
 
@@ -79,22 +88,17 @@ public class EventController {
         }
     }
 
+    //edit a current event
+    @PutMapping
+    public Result editEvent(HttpServletRequest request, @RequestParam(value = "event_id") String id) {
+        return null;
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //delete event
+    @DeleteMapping
+    public Result deleteEvent(HttpServletRequest request, @RequestParam(value = "event_id") String id) {
+        return null;
+    }
 
 
 }
