@@ -25,7 +25,7 @@ public class RescueTeamController {
     @Autowired
     EventRepository eventRepo;
 
-    @PostMapping
+    @PostMapping("/take_over")
     public Result takeoverEvent(HttpServletRequest request, @RequestParam(value = "event_id") int id) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
@@ -90,6 +90,7 @@ public class RescueTeamController {
 
             event.get().setEnd_date(new Date(System.currentTimeMillis()));
             event.get().setState(1);
+            event.get().setRescue_report(report);
             team.setStatus("free");
 
             //saving information
