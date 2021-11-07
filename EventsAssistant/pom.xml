@@ -5,9 +5,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.guides.springboot2</groupId>
-	<artifactId>springboot2-webapp-jsp</artifactId>
+	<artifactId>elec5620</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 
 	<name>springboot2-webapp-jsp</name>
 	<description>Demo project for Spring Boot</description>
