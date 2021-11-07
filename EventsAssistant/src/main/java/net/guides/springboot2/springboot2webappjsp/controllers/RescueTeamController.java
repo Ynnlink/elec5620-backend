@@ -86,28 +86,31 @@ public class RescueTeamController {
             return Result.fail("No such event!");
         } else if (event.get().getState() == 0 || event.get().getState() == 1) {
             return Result.fail("Can't complete waiting/complete event!");
+        } else if (event.get().getTeam_id() != team.getTeam_id()) {
+            return Result.fail("Can't complete other event!");
         } else {
 
-            event.get().setEnd_date(new Date(System.currentTimeMillis()));
-            event.get().setState(1);
-            event.get().setRescue_report(report);
-            team.setStatus("free");
+                event.get().setEnd_date(new Date(System.currentTimeMillis()));
+                event.get().setState(1);
+                event.get().setRescue_report(report);
+                team.setStatus("free");
 
-            //saving information
-            teamRepo.save(team);
-            eventRepo.save(event.get());
+                //saving information
+                teamRepo.save(team);
+                eventRepo.save(event.get());
 
-            //validate
-            Optional<Event> tempEvent = eventRepo.findById(id);
-            RescueTeam tempTeam = teamRepo.findByContacts_face_id(face_id);
+                //validate
+                Optional<Event> tempEvent = eventRepo.findById(id);
+                RescueTeam tempTeam = teamRepo.findByContacts_face_id(face_id);
 
-            if (tempTeam.getStatus().equals("free") && tempEvent.get().getState() == 1) {
-                return Result.succ("Complete event!");
-            } else {
-                return Result.fail("Complete fail!");
+                if (tempTeam.getStatus().equals("free") && tempEvent.get().getState() == 1) {
+                    return Result.succ("Complete event!");
+                } else {
+                    return Result.fail("Complete fail!");
+                }
             }
+
         }
-    }
 
     @PostMapping("/change_status")
     public Result changeStatus(HttpServletRequest request, @RequestParam(value = "status") String status) {
@@ -178,7 +181,7 @@ public class RescueTeamController {
             }
         } else {
             //admin
-            List<RescueTeam> allTeam = teamRepo.findAllFreeTeam();
+            List<RescueTeam> allTeam = teamRepo.findAll();
             if (allTeam.isEmpty()) {
                 return Result.fail("No teams!");
             } else {

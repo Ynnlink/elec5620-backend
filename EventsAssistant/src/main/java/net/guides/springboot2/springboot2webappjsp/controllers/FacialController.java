@@ -165,6 +165,7 @@ public class FacialController {
                 rescueTeam.setPersonnel_number(team_number);
                 rescueTeam.setAddress(address);
                 rescueTeam.setType(type);
+                rescueTeam.setStatus("free");
                 teamRepo.save(rescueTeam);
                 return Result.succ("Successfully register!");
             }
