@@ -141,10 +141,50 @@ public class EventController {
         } else {
             //return all events for admin
             List<Event> events = eventRepo.findAll();
+
             if (events.size() == 0) {
                 return Result.fail("No events!");
             }
-            return Result.succ("Query success! (State: 0 wait, 1 complete, 2 in progress)", events);
+
+            //build a return list
+            List<Map<String, Object>> eventResult = new ArrayList<>();
+
+            for (Event temp: events) {
+                Map<String, Object> info = new LinkedHashMap<>();
+
+                Optional<User> correspondingUser = userRepo.findById(temp.getUser_id());
+                Optional<RescueTeam> correspondingTeam = teamRepo.findById(temp.getTeam_id());
+
+                //basic information
+
+                info.put("event_id", temp.getEvent_id());
+                info.put("user_id", temp.getUser_id());
+                info.put("user_name", correspondingUser.get().getUser_name());
+
+                if (correspondingTeam.isPresent()) {
+                    info.put("team_id", temp.getTeam_id());
+                    info.put("team_name", correspondingTeam.get().getTeam_name());
+                } else {
+                    info.put("team_id", null);
+                    info.put("team_name", null);
+                }
+
+                info.put("event_name", temp.getEvent_name());
+                info.put("event_description", temp.getEvent_description());
+                info.put("address", temp.getAddress());
+                info.put("submit_date", temp.getDate());
+                info.put("pic_location", temp.getEvent_pic_location());
+                info.put("level", temp.getLevel());
+                info.put("state", temp.getState());
+
+                info.put("start_date", temp.getStart_date());
+                info.put("end_date", temp.getEnd_date());
+                info.put("report", temp.getRescue_report());
+
+                eventResult.add(info);
+            }
+
+            return Result.succ("Query success! (State: 0 wait, 1 complete, 2 in progress)", eventResult);
         }
 
     }
