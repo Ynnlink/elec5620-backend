@@ -12,7 +12,7 @@
     <root id="root">
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
-          <element id="module-output" name="springboot2-webapp-jsp" />
+          <element id="module-output" name="springboot-application" />
         </element>
         <element id="directory" name="lib">
           <element id="library" level="project" name="Maven: javax.xml.bind:jaxb-api:2.3.0" />

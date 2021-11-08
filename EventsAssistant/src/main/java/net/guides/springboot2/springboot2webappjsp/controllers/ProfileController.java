@@ -24,6 +24,7 @@ public class ProfileController {
 
 	//default method
 	@GetMapping
+	@CrossOrigin
 	public Result getUserProfile(HttpServletRequest request) {
 
 		//validate token
@@ -47,6 +48,7 @@ public class ProfileController {
 	}
 
 	@PutMapping("/user")
+	@CrossOrigin
 	public Result editUserProfile(HttpServletRequest request, @RequestParam(value = "name") String name, @RequestParam(value = "phone") String phone) {
 
 		//validate token
@@ -86,6 +88,7 @@ public class ProfileController {
 	}
 
 	@PutMapping("/team")
+	@CrossOrigin
 	public Result editTeamProfile(HttpServletRequest request, @RequestBody RescueTeam updateTeam) {
 
 		//validate token

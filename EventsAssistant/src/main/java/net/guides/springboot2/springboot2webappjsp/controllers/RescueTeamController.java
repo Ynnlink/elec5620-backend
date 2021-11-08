@@ -26,6 +26,7 @@ public class RescueTeamController {
     EventRepository eventRepo;
 
     @PostMapping("/take_over")
+    @CrossOrigin
     public Result takeoverEvent(HttpServletRequest request, @RequestParam(value = "event_id") int id) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
@@ -69,6 +70,7 @@ public class RescueTeamController {
     }
 
     @PostMapping("/complete")
+    @CrossOrigin
     public Result completeEvent(HttpServletRequest request, @RequestParam(value = "event_id") int id, @RequestParam(value = "report") String report) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
@@ -113,6 +115,7 @@ public class RescueTeamController {
         }
 
     @PostMapping("/change_status")
+    @CrossOrigin
     public Result changeStatus(HttpServletRequest request, @RequestParam(value = "status") String status) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
@@ -149,6 +152,7 @@ public class RescueTeamController {
     //list all free teams (user)
     //list all teams (admin)
     @GetMapping
+    @CrossOrigin
     public Result listAllTeam(HttpServletRequest request) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);

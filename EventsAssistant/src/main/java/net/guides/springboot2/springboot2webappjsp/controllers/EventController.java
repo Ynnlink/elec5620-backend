@@ -28,6 +28,7 @@ public class EventController {
 
     //list current user's corresponding event
     @GetMapping
+    @CrossOrigin
     public Result getEvent(HttpServletRequest request) {
 
         //validate token
@@ -88,6 +89,7 @@ public class EventController {
     //list all events (admin)
     //list all waiting events (team)
     @GetMapping("/all")
+    @CrossOrigin
     public Result getAllEvent(HttpServletRequest request) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
@@ -120,6 +122,7 @@ public class EventController {
                     Optional<User> correspondingUser = userRepo.findById(temp.getUser_id());
 
                     //basic information
+                    info.put("event_id", temp.getEvent_id());
                     info.put("event_name", temp.getEvent_name());
                     info.put("event_description", temp.getEvent_description());
                     info.put("address", temp.getAddress());
@@ -191,6 +194,7 @@ public class EventController {
 
     //post a new event
     @PostMapping
+    @CrossOrigin
     public Result postEvent(HttpServletRequest request, Event event, @RequestParam(value = "file") MultipartFile file) {
 
         //validate token
@@ -246,6 +250,7 @@ public class EventController {
 
     //edit a current event
     @PutMapping
+    @CrossOrigin
     public Result editEvent(HttpServletRequest request,
                             @RequestParam(value = "event_id") int id,
                             @RequestParam(value = "address") String address,
@@ -302,6 +307,7 @@ public class EventController {
 
     //rate a event (admin)
     @PostMapping("/rate")
+    @CrossOrigin
     public Result editEvent(HttpServletRequest request, @RequestParam(value = "level") int level, @RequestParam(value = "event_id") int id) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);
@@ -341,6 +347,7 @@ public class EventController {
 
     //delete event
     @DeleteMapping
+    @CrossOrigin
     public Result deleteEvent(HttpServletRequest request, @RequestParam(value = "event_id") int id) {
         //validate token
         Result result = JwtUtil.getUserFaceIdByToken(request);

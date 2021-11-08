@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/springboot2-webapp-jsp/EventsAssistant.iml" filepath="$PROJECT_DIR$/springboot2-webapp-jsp/EventsAssistant.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/elec5620-backend.iml" filepath="$PROJECT_DIR$/.idea/elec5620-backend.iml" />
-      <module fileurl="file://$PROJECT_DIR$/EventsAssistant/springboot2-webapp-jsp.iml" filepath="$PROJECT_DIR$/EventsAssistant/springboot2-webapp-jsp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/EventsAssistant/springboot-application.iml" filepath="$PROJECT_DIR$/EventsAssistant/springboot-application.iml" />
     </modules>
   </component>
 </project>

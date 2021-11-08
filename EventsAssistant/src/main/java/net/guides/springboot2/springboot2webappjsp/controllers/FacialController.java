@@ -53,6 +53,7 @@ public class FacialController {
     }
 
     @PostMapping("/user")
+    @CrossOrigin
     public Result userRegister(@RequestParam("file") MultipartFile file,
                                @RequestParam("mobile_phone") String mobilePhone,
                                @RequestParam("user_name") String name) {
@@ -102,6 +103,7 @@ public class FacialController {
     }
 
     @PostMapping("/team")
+    @CrossOrigin
     public Result teamRegister(@RequestParam("file") MultipartFile file,
                                @RequestParam("team_name") String team_name,
                                @RequestParam("contacts_name") String contacts_name,
@@ -174,9 +176,11 @@ public class FacialController {
 
 
     @PostMapping("/user_login")
+    @CrossOrigin
     public Result userLogin(@RequestParam("file") MultipartFile file,
                             @RequestParam("name") String name,
                             @RequestParam("mobile_phone") String mobile_phone) {
+
 
         //name and mobile phone login method
         if (file.getSize() == 0) {
@@ -249,6 +253,7 @@ public class FacialController {
 
 
     @PostMapping("/team_login")
+    @CrossOrigin
     public Result teamLogin(@RequestParam("file") MultipartFile file) {
 
         if (file.getSize() == 0) {
@@ -283,6 +288,7 @@ public class FacialController {
 
 
     @PostMapping("/logout")
+    @CrossOrigin
     public Result userLogout() {
         return Result.succ("Successfully logout!");
     }
@@ -366,7 +372,6 @@ public class FacialController {
             System.out.println(e.getMessage());
             return null;
         }
-
     }
 
     //detect user's face_id and verify
