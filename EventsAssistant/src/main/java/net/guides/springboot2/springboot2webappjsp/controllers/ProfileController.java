@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:8081")
 @RequestMapping("profile")
 public class ProfileController {
 

@@ -35,6 +35,7 @@ import javax.validation.constraints.Null;
 import javax.xml.crypto.dsig.keyinfo.RetrievalMethod;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:8081")
 @RequestMapping("facial")
 public class FacialController {
 
